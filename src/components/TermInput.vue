@@ -10,7 +10,7 @@
     <div v-else-if="nodeType === 'literal'" class="input-group-prepend">
       <span class="input-group-text">&quot;</span>
     </div>
-    <input type="text" class="bg-gray-300 px-4 py-2" v-model="prefix" @input="filterprefixs"
+    <input type="text" class="form-control" v-model="prefix" @input="filterprefixs"
            @focus="modal = true">
 
     <div v-if="filteredprefixs && modal">
@@ -25,7 +25,7 @@
     </div>
     <div v-else-if="nodeType === 'literal' && literalType === 'language'" class="input-group-append">
       <span @click="setLiteralType('datatype')" class="input-group-text btn">&quot;@</span>
-      <input type="text" class="bg-gray-300 px-4 py-2" v-model="prefix" @input="filterprefixs"
+      <input type="text" class="form-control" v-model="prefix" @input="filterprefixs"
              @focus="modal = true">
 
       <div v-if="filteredprefixs && modal">
@@ -38,7 +38,7 @@
     </div>
     <div v-else-if="nodeType === 'literal' && literalType === 'datatype'" class="input-group-append about flex flex-col items-center">
       <span @click="setLiteralType('language')" class="input-group-text btn">&quot;^^&lt;</span>
-      <input type="text" class="bg-gray-300 px-4 py-2" v-model="prefix" @input="filterprefixs"
+      <input type="text" class="form-control" v-model="prefix" @input="filterprefixs"
              @focus="modal = true">
 
       <div v-if="filteredprefixs && modal">
@@ -155,7 +155,7 @@ export default {
       })
     },
     setprefix (prefix) {
-      this.prefix = prefix[0] + ':' + prefix[1]
+      this.prefix = prefix[1]
       this.modal = false
     }
   }
