@@ -10,17 +10,44 @@
     <div v-else-if="nodeType === 'literal'" class="input-group-prepend">
       <span class="input-group-text">&quot;</span>
     </div>
-    <input :id="'value-' + this.id" v-model="idValue" @input="notify" type="text" class="form-control">
+    <input type="text" class="bg-gray-300 px-4 py-2" v-model="prefix" @input="filterprefixs"
+           @focus="modal = true">
+
+    <div v-if="filteredprefixs && modal">
+      <ul class="w-48 bg-gray-800 text-black">
+        <li v-for="filteredprefix in this.filteredprefixs"
+            class="py-2 border-b cursor-pointer" :key="filteredprefix"
+            @click="setprefix(filteredprefix)">{{ filteredprefix[0] }} : {{ filteredprefix[1] }}</li>
+      </ul>
+    </div>
     <div v-if="nodeType === 'iri'" class="input-group-append">
       <span class="input-group-text">&gt;</span>
     </div>
     <div v-else-if="nodeType === 'literal' && literalType === 'language'" class="input-group-append">
       <span @click="setLiteralType('datatype')" class="input-group-text btn">&quot;@</span>
-      <input :id="'language-' + this.id" v-model="language" @input="notify" type="text" class="form-control">
+      <input type="text" class="bg-gray-300 px-4 py-2" v-model="prefix" @input="filterprefixs"
+             @focus="modal = true">
+
+      <div v-if="filteredprefixs && modal">
+        <ul class="w-48 bg-gray-800 text-black">
+          <li v-for="filteredprefix in this.filteredprefixs"
+              class="py-2 border-b cursor-pointer" :key="filteredprefix"
+              @click="setprefix(filteredprefix)">{{ filteredprefix[0] }} : {{ filteredprefix[1] }}</li>
+        </ul>
+      </div>
     </div>
-    <div v-else-if="nodeType === 'literal' && literalType === 'datatype'" class="input-group-append">
+    <div v-else-if="nodeType === 'literal' && literalType === 'datatype'" class="input-group-append about flex flex-col items-center">
       <span @click="setLiteralType('language')" class="input-group-text btn">&quot;^^&lt;</span>
-      <input :id="'datatype-' + this.id" v-model="datatype" @input="notify" type="text" class="form-control">
+      <input type="text" class="bg-gray-300 px-4 py-2" v-model="prefix" @input="filterprefixs"
+             @focus="modal = true">
+
+      <div v-if="filteredprefixs && modal">
+        <ul class="w-48 bg-gray-800 text-black">
+          <li v-for="filteredprefix in this.filteredprefixs"
+              class="py-2 border-b cursor-pointer" :key="filteredprefix"
+              @click="setprefix(filteredprefix)">{{ filteredprefix[0] }} : {{ filteredprefix[1] }}</li>
+        </ul>
+      </div>
       <span class="input-group-text">&gt;</span>
     </div>
   </div>
@@ -28,10 +55,18 @@
 
 <script>
 import { DataFactory } from 'n3'
+import $ from 'jquery'
+const prefixesMap = new Map()
 
 export default {
   name: 'TermInput',
-  mounted () {
+  mounted: function () {
+    $.getJSON('https://prefix.cc/context', function (data) {
+      this.prefixs = data
+      for (const [key, value] of Object.entries(this.prefixs['@context'])) {
+        prefixesMap.set(key, value)
+      }
+    })
     this.updateNode()
   },
   watch: {
@@ -46,7 +81,11 @@ export default {
       idValue: '',
       language: 'de',
       datatype: 'http://www.w3.org/2001/XMLSchema#string',
-      node: {}
+      node: {},
+      prefix: '',
+      modal: false,
+      prefixs: prefixesMap,
+      filteredprefixs: []
     }
   },
   props: ['type', 'id', 'term'],
@@ -107,6 +146,17 @@ export default {
         }
       }
       this.idValue = this.term.value
+    },
+    filterprefixs () {
+      const arr = Array.from(this.prefixs.entries())
+      console.log(arr)
+      this.filteredprefixs = arr.filter(a1 => {
+        return a1[0].toLowerCase().startsWith(this.prefix.toLowerCase())
+      })
+    },
+    setprefix (prefix) {
+      this.prefix = prefix[0] + ':' + prefix[1]
+      this.modal = false
     }
   }
 }
